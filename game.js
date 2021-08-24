@@ -1,82 +1,73 @@
-// Imports
-import { init, initPointer, getPointer, Sprite, GameLoop } from './kontra.mjs';
-
-// Initialisation des variables
-let {
-	canvas
-} = init();
-
-initPointer();
-
-let stars = [] //Points d'accroches
-let lines = [] //Ligne
-
-let line = Sprite({
-	x: 0,
-	y: 0,
-	pointerx: 0,
-	pointery: 0,
-	color: 'gray',
-	render: function() {
-		this.context.strokeStyle = this.color;
-		this.context.lineWidth = 3;
-		this.context.beginPath();
-		this.context.moveTo(this.pointerx, this.pointery);
-		this.context.lineTo(250,700);
-		this.context.closePath();
-		this.context.stroke();
-		
-	},
-	update: function() {
-		let pointer = getPointer();
-		this.pointerx = pointer.x;
-		this.pointery = pointer.y;
-		this.render();
+class Sprite {
+	constructor ({x=0, y=0, dx=0, dy=0, width=50, height=50, color='white', image=null, ctx=null}){
+		this.x = x;
+		this.y = y;
+		this.dx = dx;
+		this.dy = dy;
+		this.color = color;
+		this.image = image;
+		this.ctx = ctx;
+		this.width = width;
+		this.height = height;
 	}
-});
 
+	render(){
+		this.ctx.beginPath();
+		this.ctx.fillStyle = this.color;
+		this.ctx.strokeStyle = this.color;
+		this.ctx.lineWidth = 3;
+		if (this.image != null)
+			this.ctx.drawImage(this.image,this.x,this.y);
+		else
+			this.ctx.arc(this.x, this.y, this.width, 0, 2  * Math.PI);
+		this.ctx.fill();
+	}
 
-for (var i = 0; i < 5; i++) {
-	let sprite = Sprite({
-		x: Math.random() * 250,
-		y: Math.random() * 350,
-		color: 'white',
-		radius: 3 + Math.random() * 2,
-		render: function() {
-			this.context.fillStyle = this.color;
-			this.context.beginPath();
-			this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-			this.context.fill();
-		}
-	});
-	stars.push(sprite);
+	update(){
+		this.x += this.dx;
+		this.y += this.dy;
+	}
 }
 
-let background = Sprite({
-	x: 0,
-	y: 0,
-	width: 500,
-	height: 700,
-	color: 'black'
+let pointerX = 0
+let pointerY = 0
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+let bg = new Sprite({x:250,y:350,color:'#040626',width:500,height:500,ctx:ctx});
+let canvas_width = 500;
+let canvas_height = 700;
+
+
+// DRAW THINGS ON CANVAS
+function draw(){
+	bg.render();
+}
+
+// CLEAR CANVAS
+function clear(){
+	ctx.clearRect(0,0,canvas_width,canvas_height);
+}
+
+// UPDATE SPRITES AND OBJECTS
+function update(){
+	bg.update();
+}
+
+// TRACK MOUSE POSITION
+document.addEventListener('mousemove', (event) => {
+	    pointerX = event.clientX;
+		pointerY = event.clientY;
 });
 
+// MAIN FUNCTION
+function main(evt){
+	setInterval(()=>{
+	clear();
+	update();
+	draw();
+	//choose next rectangle color before drawing
+	//recalls the code above every frame at a rate of 60 per second
+	},1000/60)
+}
 
-
-let loop = GameLoop({
-	update: function() {
-		stars.forEach(function(item) {
-			item.update()
-		});
-		line.update();
-	},
-
-	render: function() {
-		background.render();
-		line.render();
-		stars.forEach(function(item) {
-			item.render()
-		});
-	}
-});
-
-loop.start();
+main();
