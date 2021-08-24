@@ -29,11 +29,37 @@ class Sprite {
 	}
 }
 
+class Line {
+	constructor ({x=0, y=0, anchorX=0,anchorY=0,color='white',ctx=null}){
+		this.x = x;
+		this.y = y;
+		this.anchorX = anchorX;
+		this.anchorY = anchorY;
+		this.color = color;
+		this.ctx = ctx;
+	}
+
+	render(){
+		this.ctx.strokeStyle = this.color;
+		this.ctx.lineWidth = 3;
+		this.ctx.beginPath();
+		this.ctx.moveTo(this.anchorX,this.anchorY);
+		this.ctx.lineTo(this.x,this.y);
+		this.ctx.stroke();
+	}
+
+	update(){
+		this.x = pointerX;
+		this.y = pointerY;
+	}
+}
+
 let pointerX = 0
 let pointerY = 0
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 let bg = new Sprite({x:250,y:350,color:'#040626',width:500,height:500,ctx:ctx});
+let line = new Line({ctx:ctx});
 let canvas_width = 500;
 let canvas_height = 700;
 
@@ -41,6 +67,7 @@ let canvas_height = 700;
 // DRAW THINGS ON CANVAS
 function draw(){
 	bg.render();
+	line.render();
 }
 
 // CLEAR CANVAS
@@ -51,6 +78,7 @@ function clear(){
 // UPDATE SPRITES AND OBJECTS
 function update(){
 	bg.update();
+	line.update();
 }
 
 // TRACK MOUSE POSITION
