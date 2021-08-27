@@ -204,11 +204,11 @@ function update(){
 	enemies.forEach((element) => element.update());
 	isLineColliding();
 
-	for (var i=0;i<line.anchors.length;i++){
+	/*for (var i=0;i<line.anchors.length;i++){
 		if (line.anchors[i].spr == null || line.anchors[i].spr.y > canvas_height*0.8){
 			line.anchors.splice(i,1);
 		}
-	}
+	}*/
 
 	for (var i=0;i<stars.length;i++){
 		if (stars[i].y > canvas_height*1.5){
@@ -229,7 +229,7 @@ function main(evt){
 	clear();
 	update();
 	draw();
-	//drawLogo(ctx);
+	drawLogo(ctx);
 	},1000/60)
 }
 
