@@ -166,29 +166,29 @@ function drawLogo({x=0, y=0, ctx=null, shadow=true}){
 	ctx.lineWidth = 50;
 	if (shadow == false)
 		ctx.strokeStyle= '#48A9A6';
-	ctx.arc(x+100, y+350, 50, Math.PI*2, Math.PI+Math.PI/2);
+	ctx.arc(x, y+50, 50, Math.PI*2, Math.PI+Math.PI/2);
 	ctx.stroke();
 	
 	ctx.beginPath();
 	if (shadow == false)
 		ctx.strokeStyle= '#D4B483';
-	ctx.moveTo(x+100, y+300);
-	ctx.lineTo(x+350, y+300);
+	ctx.moveTo(x, y);
+	ctx.lineTo(x+250, y);
 	ctx.stroke();
 
-	ctx.moveTo(x+225, y+300);
-	ctx.lineTo(x+225, y+425);
+	ctx.moveTo(x+125, y);
+	ctx.lineTo(x+125, y+125);
 	ctx.stroke();
 
 	ctx.beginPath();
 	if (shadow == false)
 		ctx.strokeStyle= '#C1666B';
-	ctx.moveTo(x+325,y+275);
-	ctx.lineTo(x+325,y+425);
+	ctx.moveTo(x+225,y-25);
+	ctx.lineTo(x+225,y+125);
 	ctx.stroke();
 
-	ctx.moveTo(x+325,y+400);
-	ctx.lineTo(x+425,y+400);
+	ctx.moveTo(x+225,y+100);
+	ctx.lineTo(x+325,y+100);
 	ctx.stroke();
 }
 
@@ -314,9 +314,9 @@ function main(evt){
 	clear();
 	update();
 	draw();
-	drawLogo({x:10,y:10,ctx:ctx,shadow:true});
-	drawLogo({x:0,y:0,ctx:ctx,shadow:false});
-	writeText("SCORE : 5046",0,0,52,'white');
+	drawLogo({x:canvas.width/2-110,y:canvas.height/2-40,ctx:ctx,shadow:true});
+	drawLogo({x:canvas.width/2-120,y:canvas.height/2-50,ctx:ctx,shadow:false});
+	//writeText("SCORE : 5046",0,0,52,'rgba(255,255,255,0.5)');
 	},1000/60)
 }
 
