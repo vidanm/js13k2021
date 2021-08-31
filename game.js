@@ -113,9 +113,6 @@ function isLineColliding(){
 }
 
 function drawLogo(ctx){
-	/* '#48A9A6' : '#D4B483';
-		this.color = ( rand > 2 ) ? '#C1666B' : this.color; */
-	
 	ctx.beginPath();
 	ctx.lineWidth = 50;
 	ctx.strokeStyle= '#48A9A6';
@@ -143,13 +140,32 @@ function drawLogo(ctx){
 	ctx.stroke();
 }
 
+function initBackgroundStar(begin){
+	let dy = Math.random()+0.2;
+	let color = 'white';
+	let y = 0;
+	if (begin == true){
+		y = Math.random()*canvas_height;
+	}
+
+	return new Sprite({
+		x:Math.random()*canvas_width,
+		y:y,
+		dy:dy,
+		color:color,
+		width:Math.random()+0.1,
+		height:Math.random()+0.1,
+		ctx:ctx
+	});
+}
+
 function initStar(){
-	let dy = 2+Math.random()*1;
+	let dy = 2+Math.random();
 	//let color = ( dy < 2 ) ? 'white' : 'darkblue';
 	let color = 'white';
 	return new Sprite({
 					x:Math.random()*canvas_width,
-					y:0-Math.random()*canvas_width,
+					y:0-Math.random()*canvas_height,
 					dy:dy,
 					color:color,
 					width:5+3*Math.random(),
@@ -168,9 +184,15 @@ let ctx = canvas.getContext('2d');
 let bg = new Sprite({x:250,y:350,color:'#000220',width:500,height:500,ctx:ctx});
 let line = new Line({ctx:ctx});
 let stars = []
+let bgStars = []
 for (var i = 0;i<30;i++){
 	let star = initStar();
 	stars.push(star);
+}
+
+for (var i = 0;i < 200; i++){
+	let star = initBackgroundStar(true);
+	bgStars.push(star);
 }
 
 let enemies = []
@@ -192,6 +214,7 @@ function draw(){
 	bg.render();
 	line.render();
 	stars.forEach((element) => element.render());
+	bgStars.forEach((element) => element.render());
 	enemies.forEach((element) => element.render());
 }
 
@@ -201,6 +224,7 @@ function update(){
 	bg.update();
 	line.update();
 	stars.forEach((element) => element.update());
+	bgStars.forEach((element) => element.update());
 	enemies.forEach((element) => element.update());
 	isLineColliding();
 
@@ -216,6 +240,13 @@ function update(){
 			stars.splice(i,1,star);
 		}
 	}
+
+	for (var i=0;i<bgStars.length;i++){
+		if (bgStars[i].y > canvas_height*1.5){
+			let star = initBackgroundStar(false);
+			bgStars.splice(i,1,star);
+		}
+	}
 }
 
 document.addEventListener('mousemove', (event) => {
@@ -229,7 +260,7 @@ function main(evt){
 	clear();
 	update();
 	draw();
-	drawLogo(ctx);
+	//drawLogo(ctx);
 	},1000/60)
 }
 
