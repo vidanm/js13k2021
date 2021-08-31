@@ -1,7 +1,11 @@
+import { font } from '/tiny.js'
+import { initFont } from '/index.js'
+
 class Sprite {
-	constructor ({x=0, y=0, dx=0, dy=0, width=50, height=50, color='white', image=null, ctx=null}){
+	constructor ({x=0, y=0, dx=0, dy=0, dr=0, width=50, height=50, color='white', image=null, ctx=null}){
 		this.x = x;
 		this.y = y;
+		this.r = 0;
 		this.dx = dx;
 		this.dy = dy;
 		this.color = color;
@@ -36,6 +40,39 @@ class Sprite {
 	update(){
 		this.x += this.dx;
 		this.y += this.dy;
+		this.r += this.dr;
+	}
+}
+
+class Filante extends Sprite {
+	
+	render(){
+		let rot=Math.PI/2*3;
+		let spikes = 5;
+		let x=this.x;
+		let y=this.y;
+		let step=Math.PI/spikes;
+		let outerRadius = this.width/1.5;
+		let innerRadius = this.height;
+		ctx.beginPath();
+		ctx.moveTo(x,y-outerRadius)
+		for(i=0;i<spikes;i++){
+			x=this.x+Math.cos(rot)*outerRadius;
+		  	y=this.y+Math.sin(rot)*outerRadius;
+		 	ctx.lineTo(x,y)
+		  	rot+=step
+		  	x=this.x+Math.cos(rot)*innerRadius;
+		  	y=this.y+Math.sin(rot)*innerRadius;
+		  	ctx.lineTo(x,y)
+		  	rot+=step
+		}
+		ctx.lineTo(this.x,this.y-outerRadius);
+		ctx.closePath();
+		ctx.lineWidth=7;
+		ctx.strokeStyle=this.color;
+		ctx.stroke();
+		ctx.fillStyle='white';
+		ctx.fill();
 	}
 }
 
@@ -175,7 +212,7 @@ function initBackgroundStar(begin){
 }
 
 function initStar(){
-	let dy = 2+Math.random();
+	let dy = 1+Math.random()*2;
 	//let color = ( dy < 2 ) ? 'white' : 'darkblue';
 	let color = 'white';
 	return new Sprite({
@@ -191,12 +228,13 @@ function initStar(){
 let pointerX = 0;
 let pointerY = 0;
 
-let canvas = document.getElementById('canvas');
+const canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-let ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
+const writeText = initFont(font, ctx);
 
-let bg = new Sprite({x:250,y:350,color:'#000220',width:canvas.width,height:canvas.height,ctx:ctx});
+let bg = new Sprite({x:canvas.width/2,y:canvas.height/2,color:'#000220',width:canvas.width*canvas.height,ctx:ctx});
 let line = new Line({ctx:ctx});
 let stars = []
 let bgStars = []
@@ -212,15 +250,16 @@ for (var i = 0;i < 200; i++){
 
 let enemies = []
 for (var i = 0; i< 20;i++){
-	let spr = new Sprite({
+	let spr = new Filante({
 		x:Math.random()*canvas.width,
 		y:Math.random()*canvas.height/4,
 		dx:2*(Math.random()-0.5),
 		dy:2*(Math.random()),
-		width:5,
-		height:5,
+		dr:Math.random()*10,
+		width:10,
+		height:10,
 		ctx:ctx,
-		color:'red'});
+		color:'#C1666B'});
 	let enemy = new Enemy(spr);
 	enemies.push(enemy);
 }
@@ -277,6 +316,7 @@ function main(evt){
 	draw();
 	drawLogo({x:10,y:10,ctx:ctx,shadow:true});
 	drawLogo({x:0,y:0,ctx:ctx,shadow:false});
+	writeText("SCORE : 5046",0,0,52,'white');
 	},1000/60)
 }
 
