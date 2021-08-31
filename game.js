@@ -12,6 +12,7 @@ class Sprite {
 	}
 
 	render(){
+		this.renderShadow();
 		this.ctx.beginPath();
 		this.ctx.fillStyle = this.color;
 		this.ctx.strokeStyle = this.color;
@@ -20,6 +21,15 @@ class Sprite {
 			this.ctx.drawImage(this.image,this.x,this.y);
 		else
 			this.ctx.arc(this.x, this.y, this.width, 0, 2  * Math.PI);
+		this.ctx.fill();
+	}
+
+	renderShadow(){
+		this.ctx.beginPath();
+		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+		this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+		this.ctx.lineWidth = 5;
+		this.ctx.arc(this.x+8,this.y+8,this.width,0,2*Math.PI);
 		this.ctx.fill();
 	}
 
