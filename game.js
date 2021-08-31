@@ -63,7 +63,7 @@ class Enemy {
 }
 
 class Line {
-	constructor ({x=0, y=0, anchorX=250,anchorY=700,color='white',ctx=null}){
+	constructor ({x=0, y=0, anchorX=canvas.width/2,anchorY=canvas.height,color='white',ctx=null}){
 		this.x = x;
 		this.y = y;
 		this.color = color;
@@ -122,31 +122,36 @@ function isLineColliding(){
 	return null;
 }
 
-function drawLogo(ctx){
+function drawLogo({x=0, y=0, ctx=null, shadow=true}){
+	
 	ctx.beginPath();
+	ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'; // Shadows
 	ctx.lineWidth = 50;
-	ctx.strokeStyle= '#48A9A6';
-	ctx.arc(100, 350, 50, Math.PI*2, Math.PI+Math.PI/2);
+	if (shadow == false)
+		ctx.strokeStyle= '#48A9A6';
+	ctx.arc(x+100, y+350, 50, Math.PI*2, Math.PI+Math.PI/2);
 	ctx.stroke();
 	
 	ctx.beginPath();
-	ctx.strokeStyle= '#D4B483';
-	ctx.moveTo(100, 300);
-	ctx.lineTo(350, 300);
+	if (shadow == false)
+		ctx.strokeStyle= '#D4B483';
+	ctx.moveTo(x+100, y+300);
+	ctx.lineTo(x+350, y+300);
 	ctx.stroke();
 
-	ctx.moveTo(225, 300);
-	ctx.lineTo(225, 425);
+	ctx.moveTo(x+225, y+300);
+	ctx.lineTo(x+225, y+425);
 	ctx.stroke();
 
 	ctx.beginPath();
-	ctx.strokeStyle= '#C1666B';
-	ctx.moveTo(325,275);
-	ctx.lineTo(325,425);
+	if (shadow == false)
+		ctx.strokeStyle= '#C1666B';
+	ctx.moveTo(x+325,y+275);
+	ctx.lineTo(x+325,y+425);
 	ctx.stroke();
 
-	ctx.moveTo(325,400);
-	ctx.lineTo(425,400);
+	ctx.moveTo(x+325,y+400);
+	ctx.lineTo(x+425,y+400);
 	ctx.stroke();
 }
 
@@ -155,11 +160,11 @@ function initBackgroundStar(begin){
 	let color = 'white';
 	let y = 0;
 	if (begin == true){
-		y = Math.random()*canvas_height;
+		y = Math.random()*canvas.height;
 	}
 
 	return new Sprite({
-		x:Math.random()*canvas_width,
+		x:Math.random()*canvas.width,
 		y:y,
 		dy:dy,
 		color:color,
@@ -174,8 +179,8 @@ function initStar(){
 	//let color = ( dy < 2 ) ? 'white' : 'darkblue';
 	let color = 'white';
 	return new Sprite({
-					x:Math.random()*canvas_width,
-					y:0-Math.random()*canvas_height,
+					x:Math.random()*canvas.width,
+					y:0-Math.random()*canvas.height,
 					dy:dy,
 					color:color,
 					width:5+3*Math.random(),
@@ -187,11 +192,11 @@ let pointerX = 0;
 let pointerY = 0;
 
 let canvas = document.getElementById('canvas');
-let canvas_width = 500;
-let canvas_height = 700;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 let ctx = canvas.getContext('2d');
 
-let bg = new Sprite({x:250,y:350,color:'#000220',width:500,height:500,ctx:ctx});
+let bg = new Sprite({x:250,y:350,color:'#000220',width:canvas.width,height:canvas.height,ctx:ctx});
 let line = new Line({ctx:ctx});
 let stars = []
 let bgStars = []
@@ -208,8 +213,8 @@ for (var i = 0;i < 200; i++){
 let enemies = []
 for (var i = 0; i< 20;i++){
 	let spr = new Sprite({
-		x:Math.random()*canvas_width,
-		y:Math.random()*canvas_height/4,
+		x:Math.random()*canvas.width,
+		y:Math.random()*canvas.height/4,
 		dx:2*(Math.random()-0.5),
 		dy:2*(Math.random()),
 		width:5,
@@ -228,7 +233,7 @@ function draw(){
 	enemies.forEach((element) => element.render());
 }
 
-function clear(){ctx.clearRect(0,0,canvas_width,canvas_height);}
+function clear(){ctx.clearRect(0,0,canvas.width,canvas.height);}
 
 function update(){
 	bg.update();
@@ -239,20 +244,20 @@ function update(){
 	isLineColliding();
 
 	/*for (var i=0;i<line.anchors.length;i++){
-		if (line.anchors[i].spr == null || line.anchors[i].spr.y > canvas_height*0.8){
+		if (line.anchors[i].spr == null || line.anchors[i].spr.y > canvas.height*0.8){
 			line.anchors.splice(i,1);
 		}
 	}*/
 
 	for (var i=0;i<stars.length;i++){
-		if (stars[i].y > canvas_height*1.5){
+		if (stars[i].y > canvas.height*1.5){
 			let star = initStar();
 			stars.splice(i,1,star);
 		}
 	}
 
 	for (var i=0;i<bgStars.length;i++){
-		if (bgStars[i].y > canvas_height*1.5){
+		if (bgStars[i].y > canvas.height*1.5){
 			let star = initBackgroundStar(false);
 			bgStars.splice(i,1,star);
 		}
@@ -270,7 +275,8 @@ function main(evt){
 	clear();
 	update();
 	draw();
-	//drawLogo(ctx);
+	drawLogo({x:10,y:10,ctx:ctx,shadow:true});
+	drawLogo({x:0,y:0,ctx:ctx,shadow:false});
 	},1000/60)
 }
 
