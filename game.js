@@ -1,5 +1,5 @@
-import { font } from '/tiny.js'
-import { initFont } from '/index.js'
+import { font } from './tiny.js'
+import { initFont } from './index.js'
 
 class Sprite {
 	constructor ({x=0, y=0, dx=0, dy=0, dr=0, width=50, height=50, color='white', image=null, ctx=null}){
