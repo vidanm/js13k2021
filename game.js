@@ -1,141 +1,7 @@
 import { font } from './tiny.js'
 import { initFont } from './index.js'
-
-class Sprite {
-	constructor ({x=0, y=0, dx=0, dy=0, dr=0, width=50, height=50, color='white', image=null, ctx=null}){
-		this.x = x;
-		this.y = y;
-		this.r = 0;
-		this.dx = dx;
-		this.dy = dy;
-		this.color = color;
-		this.image = image;
-		this.ctx = ctx;
-		this.width = width;
-		this.height = height;
-	}
-
-	render(){
-		this.renderShadow();
-		this.ctx.beginPath();
-		this.ctx.fillStyle = this.color;
-		this.ctx.strokeStyle = this.color;
-		this.ctx.lineWidth = 5;
-		if (this.image != null)
-			this.ctx.drawImage(this.image,this.x,this.y);
-		else
-			this.ctx.arc(this.x, this.y, this.width, 0, 2  * Math.PI);
-		this.ctx.fill();
-	}
-
-	renderShadow(){
-		this.ctx.beginPath();
-		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-		this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-		this.ctx.lineWidth = 5;
-		this.ctx.arc(this.x+8,this.y+8,this.width,0,2*Math.PI);
-		this.ctx.fill();
-	}
-
-	update(){
-		this.x += this.dx;
-		this.y += this.dy;
-		this.r += this.dr;
-	}
-}
-
-class Filante extends Sprite {
-	
-	render(){
-		let rot=Math.PI/2*3;
-		let spikes = 5;
-		let x=this.x;
-		let y=this.y;
-		let step=Math.PI/spikes;
-		let outerRadius = this.width/1.5;
-		let innerRadius = this.height;
-		ctx.beginPath();
-		ctx.moveTo(x,y-outerRadius)
-		for(i=0;i<spikes;i++){
-			x=this.x+Math.cos(rot)*outerRadius;
-		  	y=this.y+Math.sin(rot)*outerRadius;
-		 	ctx.lineTo(x,y)
-		  	rot+=step
-		  	x=this.x+Math.cos(rot)*innerRadius;
-		  	y=this.y+Math.sin(rot)*innerRadius;
-		  	ctx.lineTo(x,y)
-		  	rot+=step
-		}
-		ctx.lineTo(this.x,this.y-outerRadius);
-		ctx.closePath();
-		ctx.lineWidth=7;
-		ctx.strokeStyle=this.color;
-		ctx.stroke();
-		ctx.fillStyle='white';
-		ctx.fill();
-	}
-}
-
-class Anchor {
-	constructor ({spr=null,color='white'}){
-		this.spr = spr;
-		let rand = Math.random()*3;
-		this.color = ( rand > 1) ? '#48A9A6' : '#D4B483';
-		this.color = ( rand > 2 ) ? '#C1666B' : this.color;
-	}
-}
-
-class Enemy {
-	constructor (spr){
-		this.spr = spr;
-	}
-
-	render(){
-		this.spr.render();
-	}
-
-	update(){
-		this.spr.update();
-	}
-}
-
-class Line {
-	constructor ({x=0, y=0, anchorX=canvas.width/2,anchorY=canvas.height,color='white',ctx=null}){
-		this.x = x;
-		this.y = y;
-		this.color = color;
-		this.ctx = ctx;
-		let anchor = new Anchor({spr:new Sprite({x:anchorX, y:anchorY}),color:'white'});
-		this.anchors = [anchor];
-	}
-
-	addAnchor(anchor){
-		this.anchors.push(anchor);
-	}
-
-	render(){
-		this.ctx.lineWidth = 5;
-		for (var i = 0;i<this.anchors.length;i++){
-			this.ctx.beginPath();
-			if ( i < this.anchors.length -1 ){
-				this.ctx.moveTo(this.anchors[i].spr.x, this.anchors[i].spr.y);
-				this.ctx.lineTo(this.anchors[i+1].spr.x, this.anchors[i+1].spr.y);
-				this.ctx.strokeStyle = this.anchors[i].color;
-			}
-			else {
-				this.ctx.moveTo(this.anchors[i].spr.x, this.anchors[i].spr.y);
-				this.ctx.lineTo(this.x, this.y);
-				this.ctx.strokeStyle = this.color;
-			}
-			this.ctx.stroke();
-		}
-	}
-
-	update(){
-		this.x = pointerX;
-		this.y = pointerY;
-	}
-}
+import { Sprite, Filante } from './sprite.js'
+import { Anchor, Line, pointerX, pointerY } from './player.js'
 
 function distance(x1, y1, x2, y2){
 	return Math.sqrt(
@@ -225,19 +91,18 @@ function initStar(){
 					ctx:ctx});
 }
 
-let pointerX = 0;
-let pointerY = 0;
-
 const canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
 const writeText = initFont(font, ctx);
+let gameStatus = 'intro'
 
 let bg = new Sprite({x:canvas.width/2,y:canvas.height/2,color:'#000220',width:canvas.width*canvas.height,ctx:ctx});
 let line = new Line({ctx:ctx});
 let stars = []
 let bgStars = []
+let currentIntervalID;
 for (var i = 0;i<30;i++){
 	let star = initStar();
 	stars.push(star);
@@ -260,8 +125,7 @@ for (var i = 0; i< 20;i++){
 		height:10,
 		ctx:ctx,
 		color:'#C1666B'});
-	let enemy = new Enemy(spr);
-	enemies.push(enemy);
+	enemies.push(spr);
 }
 
 function draw(){
@@ -276,7 +140,7 @@ function clear(){ctx.clearRect(0,0,canvas.width,canvas.height);}
 
 function update(){
 	bg.update();
-	line.update();
+	line.update(pointerX, pointerY);
 	stars.forEach((element) => element.update());
 	bgStars.forEach((element) => element.update());
 	enemies.forEach((element) => element.update());
@@ -303,21 +167,66 @@ function update(){
 	}
 }
 
-document.addEventListener('mousemove', (event) => {
-		var rect = canvas.getBoundingClientRect();
-	    pointerX = event.clientX - rect.left;
-		pointerY = event.clientY - rect.top;
-});
+function clickToPlay(x, y, opacity){
+	writeText("CLICK TO PLAY",x,y,18,'rgba(255,255,255,'+opacity.toString()+')');
+}
+
+function intro(evt){
+	let logoDownY = canvas.height+200;
+	let logoY = logoDownY;
+	let logoX = canvas.width/2-120;
+	let logoCenterY = canvas.height/2-50;
+	let speed = 0.05;
+	let show = true;
+
+	let textOpacity = 0.5;
+	let textOpacityDirection = false; // false -> goes down | true -> goes up
+	let textOpacitySpeed = 0.02;
+
+	currentIntervalID = setInterval(()=>{
+		clear();
+		bg.render();
+		bgStars.forEach((element) => element.render());
+		drawLogo({x:logoX-10,y:logoY-10,ctx:ctx,shadow:true});
+		drawLogo({x:logoX,y:logoY,ctx:ctx,shadow:false});
+		clickToPlay(logoX+40, logoY+150, textOpacity);
+		
+		if (show)
+			logoY += (logoCenterY - logoY)*speed;
+		else
+			logoY += (logoDownY - logoX)*speed;
+		
+		if (textOpacityDirection){
+			textOpacity += textOpacitySpeed;
+			if (textOpacity >= 1)
+				textOpacityDirection = false;
+		}
+		else{
+			textOpacity += -textOpacitySpeed; 
+			if (textOpacity <= 0.5)
+				textOpacityDirection = true;
+		}
+		
+		bgStars.forEach((element) => element.update());
+
+	},1000/60)
+}
+
+document.addEventListener('click', (event) => {
+	if ( gameStatus == 'intro' ){
+		gameStatus == 'game';
+		clearInterval(currentIntervalID);
+		main();
+	}
+}, false);
 
 function main(evt){
 	setInterval(()=>{
 	clear();
 	update();
 	draw();
-	drawLogo({x:canvas.width/2-110,y:canvas.height/2-40,ctx:ctx,shadow:true});
-	drawLogo({x:canvas.width/2-120,y:canvas.height/2-50,ctx:ctx,shadow:false});
-	//writeText("SCORE : 5046",0,0,52,'rgba(255,255,255,0.5)');
 	},1000/60)
 }
 
-main();
+intro();
+//main();
