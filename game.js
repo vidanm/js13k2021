@@ -2,6 +2,8 @@ import { font } from './tiny.js'
 import { initFont } from './index.js'
 import { Sprite, Filante } from './sprite.js'
 import { Anchor, Line, pointerX, pointerY } from './player.js'
+import { lightPalette, darkPalette, randomColorFromPalette } from './palette.js'
+
 
 function distance(x1, y1, x2, y2){
 	return Math.sqrt(
@@ -20,6 +22,18 @@ function isLineColliding(){
 		if ((distab + distbc) -distac <= 1){
 			let anchor = new Anchor({spr:element});
 			line.addAnchor(anchor);
+		}
+	});
+
+	enemies.forEach((element) => {
+		let anlen = line.anchors.length;
+		let distab = distance(line.x, line.y, element.x, element.y);
+		let distbc = distance(element.x, element.y, line.anchors[anlen -1].spr.x, line.anchors[anlen-1].spr.y);
+		let distac = distance(line.x, line.y, line.anchors[anlen-1].spr.x, line.anchors[anlen-1].spr.y);
+
+		if ((distab + distbc) -distac <= 1){
+			gameStatus = 'intro';
+			show = true;
 		}
 	});
 	return null;
@@ -119,11 +133,11 @@ for (var i = 0; i< 20;i++){
 		y:0-Math.random()*canvas.height,
 		dx:2*(Math.random()-0.5),
 		dy:2*(Math.random()),
-		dr:Math.random()*10,
+		dr:Math.random()/100,
 		width:10,
 		height:10,
 		ctx:ctx,
-		color:'#C1666B'});
+		color:randomColorFromPalette(lightPalette)});
 	enemies.push(spr);
 }
 

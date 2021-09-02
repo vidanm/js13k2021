@@ -2,9 +2,10 @@ class Sprite {
 	constructor ({x=0, y=0, dx=0, dy=0, dr=0, width=50, height=50, color='white', image=null, ctx=null}){
 		this.x = x;
 		this.y = y;
-		this.r = 0;
+		this.r = Math.random()*Math.PI*2;
 		this.dx = dx;
 		this.dy = dy;
+		this.dr = dr;
 		this.color = color;
 		this.image = image;
 		this.ctx = ctx;
@@ -37,38 +38,43 @@ class Sprite {
 	update(){
 		this.x += this.dx;
 		this.y += this.dy;
-		this.r += this.dr;
+		//this.r += this.dr;
 	}
 }
 
 class Filante extends Sprite {
 	render(){
+		this.ctx.save()
+		this.ctx.translate(this.x, this.y);
+		this.ctx.rotate(this.r);
 		let rot=Math.PI/2*3;
 		let spikes = 5;
-		let x=this.x;
-		let y=this.y;
+		let x=0;
+		let y=0;
 		let step=Math.PI/spikes;
 		let outerRadius = this.width/1.5;
 		let innerRadius = this.height;
 		this.ctx.beginPath();
 		this.ctx.moveTo(x,y-outerRadius)
 		for(var i=0;i<spikes;i++){
-			x=this.x+Math.cos(rot)*outerRadius;
-		  	y=this.y+Math.sin(rot)*outerRadius;
+			x=Math.cos(rot)*outerRadius;
+		  	y=Math.sin(rot)*outerRadius;
 		 	this.ctx.lineTo(x,y)
 		  	rot+=step
-		  	x=this.x+Math.cos(rot)*innerRadius;
-		  	y=this.y+Math.sin(rot)*innerRadius;
-		  	this.ctx.lineTo(x,y)
-		  	rot+=step
+		  	x=Math.cos(rot)*innerRadius;
+		  	y=Math.sin(rot)*innerRadius;
+		  	this.ctx.lineTo(x,y);
+		  	rot+=step;
 		}
-		this.ctx.lineTo(this.x,this.y-outerRadius);
+		this.ctx.lineTo(0,0-outerRadius);
 		this.ctx.closePath();
-		this.ctx.lineWidth=7;
+		this.ctx.lineWidth=5;
 		this.ctx.strokeStyle=this.color;
 		this.ctx.stroke();
 		this.ctx.fillStyle='white';
 		this.ctx.fill();
+		this.ctx.translate(0,0);
+		this.ctx.restore();
 	}
 }
 
