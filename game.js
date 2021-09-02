@@ -1,8 +1,8 @@
-import { font } from './tiny.js'
-import { initFont } from './index.js'
 import { Sprite, Filante } from './sprite.js'
 import { Anchor, Line, pointerX, pointerY } from './player.js'
 import { lightPalette, darkPalette, randomColorFromPalette } from './palette.js'
+import { canvas, ctx } from './canvas.js'
+import { writeText } from './font.js'
 
 
 function distance(x1, y1, x2, y2){
@@ -93,7 +93,6 @@ function initBackgroundStar(begin){
 
 function initStar(){
 	let dy = 1+Math.random()*2;
-	//let color = ( dy < 2 ) ? 'white' : 'darkblue';
 	let color = 'white';
 	return new Sprite({
 					x:Math.random()*canvas.width,
@@ -105,13 +104,10 @@ function initStar(){
 					ctx:ctx});
 }
 
-const canvas = document.getElementById('canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const ctx = canvas.getContext('2d');
-const writeText = initFont(font, ctx);
-let gameStatus = 'intro'
-
+let score_to_add = 0;
+let best_score = 0;
+let current_score = 0;
+let gameStatus = 'intro';
 let bg = new Sprite({x:canvas.width/2,y:canvas.height/2,color:'#000220',width:canvas.width*canvas.height,ctx:ctx});
 let line = new Line({ctx:ctx});
 let stars = []
