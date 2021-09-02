@@ -102,7 +102,6 @@ let bg = new Sprite({x:canvas.width/2,y:canvas.height/2,color:'#000220',width:ca
 let line = new Line({ctx:ctx});
 let stars = []
 let bgStars = []
-let currentIntervalID;
 for (var i = 0;i<30;i++){
 	let star = initStar();
 	stars.push(star);
@@ -117,7 +116,7 @@ let enemies = []
 for (var i = 0; i< 20;i++){
 	let spr = new Filante({
 		x:Math.random()*canvas.width,
-		y:Math.random()*canvas.height/4,
+		y:0-Math.random()*canvas.height,
 		dx:2*(Math.random()-0.5),
 		dy:2*(Math.random()),
 		dr:Math.random()*10,
@@ -167,66 +166,77 @@ function update(){
 	}
 }
 
-function clickToPlay(x, y, opacity){
-	writeText("CLICK TO PLAY",x,y,18,'rgba(255,255,255,'+opacity.toString()+')');
-}
+
+// INTRO VARIABLES
+const logoDownY = canvas.height+200;
+let logoY = logoDownY;
+let logoX = canvas.width/2-120;
+const logoCenterY = canvas.height/2-50;
+const speed = 0.05;
+let show = true;
+
+let textOpacity = 0.5;
+let textOpacityDirection = false; // false -> goes down | true -> goes up
+const textOpacitySpeed = 0.02;
+
 
 function intro(evt){
-	let logoDownY = canvas.height+200;
-	let logoY = logoDownY;
-	let logoX = canvas.width/2-120;
-	let logoCenterY = canvas.height/2-50;
-	let speed = 0.05;
-	let show = true;
+	clear();
+	bg.render();
+	bgStars.forEach((element) => element.render());
+	drawLogo({x:logoX-10,y:logoY-10,ctx:ctx,shadow:true});
+	drawLogo({x:logoX,y:logoY,ctx:ctx,shadow:false});
+	writeText("CLICK TO PLAY",logoX+40,logoY+150,18,'rgba(255,255,255,'+textOpacity.toString()+')');
+	
+	if (show)
+		logoY += (logoCenterY - logoY)*speed;
+	else {
+		logoY += (logoDownY - logoY)*speed;
+		if (Math.abs(logoDownY - logoY) < 50)
+			gameStatus = 'game';
+	}
+	
+	if (textOpacityDirection){
+		textOpacity += textOpacitySpeed;
+		if (textOpacity >= 1)
+			textOpacityDirection = false;
+	}
+	else{
+		textOpacity += -textOpacitySpeed; 
+		if (textOpacity <= 0.5)
+			textOpacityDirection = true;
+	}
+	bgStars.forEach((element) => element.update());
 
-	let textOpacity = 0.5;
-	let textOpacityDirection = false; // false -> goes down | true -> goes up
-	let textOpacitySpeed = 0.02;
-
-	currentIntervalID = setInterval(()=>{
-		clear();
-		bg.render();
-		bgStars.forEach((element) => element.render());
-		drawLogo({x:logoX-10,y:logoY-10,ctx:ctx,shadow:true});
-		drawLogo({x:logoX,y:logoY,ctx:ctx,shadow:false});
-		clickToPlay(logoX+40, logoY+150, textOpacity);
-		
-		if (show)
-			logoY += (logoCenterY - logoY)*speed;
-		else
-			logoY += (logoDownY - logoX)*speed;
-		
-		if (textOpacityDirection){
-			textOpacity += textOpacitySpeed;
-			if (textOpacity >= 1)
-				textOpacityDirection = false;
-		}
-		else{
-			textOpacity += -textOpacitySpeed; 
-			if (textOpacity <= 0.5)
-				textOpacityDirection = true;
-		}
-		
-		bgStars.forEach((element) => element.update());
-
-	},1000/60)
 }
 
 document.addEventListener('click', (event) => {
+	console.log("CLICK");
 	if ( gameStatus == 'intro' ){
-		gameStatus == 'game';
-		clearInterval(currentIntervalID);
-		main();
+		show = false;
 	}
 }, false);
 
-function main(evt){
-	setInterval(()=>{
+function game(evt){
 	clear();
 	update();
 	draw();
-	},1000/60)
 }
 
-intro();
-//main();
+function gameLoop(){
+	switch (gameStatus){
+		case 'intro':
+			intro()
+			break;
+		case 'game':
+			game()
+			break;
+		case 'outro':
+			//outro();
+			break;
+	}
+}
+
+let currentIntervalID = setInterval(() => {
+	gameLoop();
+},1000/60);
